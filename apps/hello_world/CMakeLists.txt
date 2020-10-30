@@ -1,0 +1,2 @@
+brr_add_executable(hello_world_cli)
+target_link_libraries(hello_world_cli PRIVATE hello_world_lib)

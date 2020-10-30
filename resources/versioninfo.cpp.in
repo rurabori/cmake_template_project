@@ -1,0 +1,33 @@
+// Version information for targets created on Unix-like systems (Linux and
+// macOS).
+//
+// The general idea is to create a string containing version information and
+// embed this string into the created target into a .versioninfo section. To do
+// this, we utilize compiler attributes.
+//
+// On macOS, apart from specifying a section, we have to also specify a segment
+// into which the section should be put. Otherwise, the build fails with
+// "mach-o section specifier requires a segment and section separated by a
+// comma". Thus, on macOS, the name of the section will actually be
+// __TEXT.versioninfo (the dot in between is added there automatically).
+//
+// This attribute approach works for both GCC and Clang.
+//
+
+#if defined(__APPLE__)
+#    define PUT_INTO_VERSION_INFO_SECTION __attribute__((used,section("__TEXT,versioninfo")))
+#elif defined(__linux__)
+#    define PUT_INTO_VERSION_INFO_SECTION __attribute__((used,section(".versioninfo")))
+#else
+#    error This file can be built only on macOS and Linux.
+#endif
+
+namespace {
+
+PUT_INTO_VERSION_INFO_SECTION constexpr char VERSION_INFO[] = R"({
+    "program_name": "@target@",
+    "version": "@PROJECT_VERSION@",
+    "git_hash": "@REPO_HASH@"
+})";
+
+}
