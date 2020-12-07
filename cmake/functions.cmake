@@ -49,16 +49,25 @@ endfunction()
 # Initializes the settings to project defaults and adds the include dir of the
 # project as public include directory.
 function(brr_add_library target_name type)
-  glob_sources()
-  glob_dir(${CMAKE_HOME_DIRECTORY}/include/${target_name})
 
-  add_library(${target_name} ${type} ${sources})
-  target_include_directories(${target_name} PRIVATE .)
+  if("${type}" STREQUAL "INTERFACE")
+    add_library(${target_name} INTERFACE)
 
-  brr_target_init(${target_name})
+    brr_target_init(${target_name})
 
-  target_include_directories(
-    ${target_name}
-    PUBLIC ${CMAKE_HOME_DIRECTORY}/include
-    PRIVATE .)
+    target_include_directories(${target_name}
+                               INTERFACE ${CMAKE_HOME_DIRECTORY}/include)
+  else()
+    glob_sources()
+    glob_dir(${CMAKE_HOME_DIRECTORY}/include/${target_name})
+
+    add_library(${target_name} ${type} ${sources})
+
+    brr_target_init(${target_name})
+
+    target_include_directories(
+      ${target_name}
+      PUBLIC ${CMAKE_HOME_DIRECTORY}/include
+      PRIVATE .)
+  endif()
 endfunction()
